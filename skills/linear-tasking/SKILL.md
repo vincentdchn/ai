@@ -42,7 +42,7 @@ Return list of created issues with:
 - Dependencies
 - Link
 
-Remind the user: each issue gets its own branch (use `git-branch-from-linear`).
+Remind the user: each issue gets its own branch (follow branch-naming rule).
 
 ## Rules
 

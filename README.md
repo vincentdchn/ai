@@ -55,6 +55,7 @@ Decision test:
 | layer-boundaries | Strict inward-only dependency direction |
 | naming-conventions | File and symbol naming with pattern expansion |
 | observability | Structured logging, no console.log |
+| branch-naming | Git branch format from ticket, derived username from git config |
 | testing-contract | Test coverage, mock patterns, integration guards |
 
 ## Skills (on-demand)
@@ -64,7 +65,6 @@ Decision test:
 | check-conventions | Validates code against all project conventions (grep-based) |
 | check-config | Validates project.yaml is well-formed |
 | ddd-scaffold | Generates DDD file structure for a new feature |
-| git-branch-from-linear | Creates branch from Linear issue with naming convention |
 | interface-scout | Finds existing patterns and proposes new interfaces |
 | linear-tasking | Creates Linear issues from a task breakdown |
 | pr-description | Generates PR body from branch diff |
