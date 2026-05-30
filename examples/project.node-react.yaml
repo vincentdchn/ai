@@ -1,0 +1,63 @@
+# config_dir: .ai  # default — uncomment and change for other harnesses (.claude, .cursor, etc.)
+
+runtime: node
+
+architecture:
+  pattern: layered
+  ports_dir: src/services/
+  adapters_dir: src/infrastructure/
+  domain_dir: src/domain/
+  shared_domain_dir: packages/shared/
+  composition_root: src/app.ts
+  barrel_file: index.ts
+
+conventions:
+  naming:
+    files: camelCase
+    classes: PascalCase
+    interfaces: PascalCase
+    errors_suffix: Error
+    schemas_suffix: Schema
+    adapters_pattern: "{Name}{Service}"
+
+  error_handling:
+    style: throw
+    base_class: AppError
+    hierarchy: true
+    require_cause_chain: true
+
+  barrel_exports:
+    exclude: [adapters, mocks, internals]
+
+  domain_purity:
+    no_persistence_fields: true
+    no_infra_imports: ["pg", "redis", "ioredis", "@prisma/client", "aws-sdk"]
+
+  observability:
+    style: structured
+    require_log_constants: false
+
+quality_gates:
+  commands:
+    format: pnpm format
+    lint: pnpm lint
+    typecheck: tsc --noEmit
+    test: pnpm test
+    audit: pnpm audit
+    coverage: pnpm test:coverage
+  coverage_threshold: 80
+  retry_max: 3
+
+testing:
+  framework: vitest
+  test_dir: __tests__/
+  mock_pattern: "Mock{Interface}"
+  mock_dir: __tests__/mocks/
+  helpers_file: __tests__/helpers.ts
+  integration_guard: INTEGRATION
+
+git:
+  branch_format: "{username}/{ticket}-{slug}"
+  commit_format: conventional
+  max_header: 72
+  ticket_prefix: SAAS
