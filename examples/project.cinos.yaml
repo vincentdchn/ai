@@ -1,0 +1,63 @@
+# config_dir: .ai  # default — uncomment and change for other harnesses (.claude, .cursor, etc.)
+
+runtime: deno
+
+architecture:
+  pattern: port-adapter
+  ports_dir: src/application/
+  adapters_dir: src/adapters/
+  domain_dir: src/domain/
+  shared_domain_dir: packages/domain/
+  composition_root: src/main.ts
+  barrel_file: mod.ts
+
+conventions:
+  naming:
+    files: snake_case
+    classes: PascalCase
+    interfaces: PascalCase
+    errors_suffix: Error
+    schemas_suffix: Schema
+    adapters_pattern: "{service}_{name}"
+
+  error_handling:
+    style: result
+    base_class: CinosError
+    hierarchy: true
+    require_cause_chain: true
+
+  barrel_exports:
+    exclude: [adapters, mocks, test_helpers, internals]
+
+  domain_purity:
+    no_persistence_fields: true
+    no_infra_imports: ["@aws-sdk", "@cinos/aws", "playwright"]
+
+  observability:
+    style: structured
+    require_log_constants: true
+
+quality_gates:
+  commands:
+    format: deno fmt
+    lint: deno lint
+    typecheck: deno task check
+    test: deno task test
+    audit: deno task audit
+    coverage: deno task test:coverage
+  coverage_threshold: 80
+  retry_max: 3
+
+testing:
+  framework: deno
+  test_dir: tests/
+  mock_pattern: "InMemory{Interface}"
+  mock_dir: tests/_mocks/
+  helpers_file: tests/_mocks/test_helpers.ts
+  integration_guard: INTEGRATION_TEST
+
+git:
+  branch_format: "{username}/{ticket}-{slug}"
+  commit_format: conventional
+  max_header: 100
+  ticket_prefix: CIN

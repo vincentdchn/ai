@@ -1,0 +1,74 @@
+# project.yaml schema reference
+# Place a project.yaml in the project's config directory (default: .ai/).
+# Skills read this file to adapt behavior to project-specific conventions.
+
+# Config location (where this file and skills/agents symlinks live)
+config_dir: string       # default: .ai/ — override if your harness uses another path (e.g., .claude/, .cursor/)
+
+# Project identity
+runtime: string          # deno | node | go | python | rust
+
+# Architecture conventions
+architecture:
+  pattern: string        # port-adapter | layered | hexagonal | mvc | none
+  ports_dir: string      # Where port/service interfaces live. For layered/mvc, this is the service contracts dir.
+  adapters_dir: string   # Where adapter implementations live (e.g., src/adapters/)
+  domain_dir: string     # Where domain logic lives (e.g., src/domain/)
+  shared_domain_dir: string  # Shared domain package path (optional)
+  composition_root: string   # File that wires adapters to ports (e.g., src/main.ts)
+  barrel_file: string    # Public API file (e.g., mod.ts, index.ts)
+
+# Coding conventions
+conventions:
+  naming:
+    files: string        # snake_case | camelCase | kebab-case | PascalCase
+    classes: string      # PascalCase | camelCase
+    interfaces: string   # PascalCase (with or without I prefix)
+    errors_suffix: string    # Error | Exception | Err
+    schemas_suffix: string   # Schema | Validator | Zod
+    adapters_pattern: string # "{service}_{name}" | "{Name}{Service}" | free
+
+  error_handling:
+    style: string        # result | throw | error-values | go-style
+    base_class: string   # Base error class name (optional, e.g., CinosError, AppError)
+    hierarchy: boolean   # Whether errors follow abstract Module -> concrete Specific
+    require_cause_chain: boolean  # Whether errors must chain underlying cause
+
+  barrel_exports:
+    exclude: list        # What must NOT appear in barrel file [adapters, mocks, test_helpers, internals]
+
+  domain_purity:
+    no_persistence_fields: boolean   # Domain entities have no DB/storage keys
+    no_infra_imports: list           # Forbidden imports in domain layer ["@aws-sdk", "pg", "redis"]
+
+  observability:
+    style: string        # structured | console | custom
+    require_log_constants: boolean   # Whether log events must use named constants
+
+# Quality gate commands
+quality_gates:
+  commands:
+    format: string       # e.g., "deno fmt" | "npm run format" | "go fmt ./..."
+    lint: string         # e.g., "deno lint" | "npm run lint" | "golangci-lint run"
+    typecheck: string    # e.g., "deno task check" | "tsc --noEmit" | null (for Go/Rust)
+    test: string         # e.g., "deno task test" | "npm test" | "go test ./..."
+    audit: string        # e.g., "deno task audit" | "npm audit" | null
+    coverage: string     # e.g., "deno task test:coverage" | "npm run test:coverage"
+  coverage_threshold: number  # Minimum line coverage percentage (e.g., 80)
+  retry_max: number      # Max fix attempts per step before escalating (e.g., 3)
+
+# Testing conventions
+testing:
+  framework: string      # deno | vitest | jest | go | pytest | cargo
+  test_dir: string       # Where tests live (e.g., tests/ | __tests__/ | *_test.go)
+  mock_pattern: string   # Mock naming (e.g., "InMemory{Interface}" | "Mock{Interface}")
+  mock_dir: string       # Where mocks live (e.g., tests/_mocks/ | __mocks__/)
+  helpers_file: string   # Test factory helpers (e.g., tests/_mocks/test_helpers.ts)
+  integration_guard: string  # Env var to gate integration tests (e.g., INTEGRATION_TEST)
+
+# Git conventions
+git:
+  branch_format: string  # e.g., "{username}/{ticket}-{slug}"
+  commit_format: string  # conventional | freeform | angular
+  max_header: number     # Max commit header length (e.g., 100)
+  ticket_prefix: string  # e.g., "CIN" | "PROJ" | null
