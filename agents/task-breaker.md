@@ -6,7 +6,7 @@ description: >
   creates ordered subtasks with agent assignments, and produces file-level
   implementation plans. Requires human approval before creating any issues.
 tools: Read, Bash, Grep, Glob, mcp__linear
-skills: linear-tasking
+skills: []
 model: inherit
 memory: project
 ---
@@ -94,7 +94,7 @@ For each subtask:
 
 ### 7. On Approval
 
-Invoke skill `linear-tasking` to create issues with blockedBy dependencies.
+Create Linear issues with blockedBy dependencies using the Linear MCP.
 Remind user: each story gets its own branch (follow branch-naming rule).
 
 ## Rules

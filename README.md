@@ -66,7 +66,6 @@ Decision test:
 | check-config | Validates project.yaml is well-formed |
 | ddd-scaffold | Generates DDD file structure for a new feature |
 | interface-scout | Finds existing patterns and proposes new interfaces |
-| linear-tasking | Creates Linear issues from a task breakdown |
 | pr-description | Generates PR body from branch diff |
 | run-and-fix | Runs quality gates, auto-fixes, retries, coverage + git hygiene |
 | audit-prompt | Generates self-contained audit prompt for independent review |
