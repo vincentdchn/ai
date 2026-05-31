@@ -64,17 +64,3 @@ immediate issue):
 4. **Conflicts**: If the new rule contradicts an existing one, replace it with a
    "supersedes" note explaining why.
 
-### On command errors (end-of-session review)
-
-Before wrapping up a long session (5+ tool calls), self-review Bash commands
-that failed:
-
-1. **Detect patterns**: Did the same command fail multiple times? Was a wrong
-   flag, syntax, or path used before finding the correct one?
-2. **Extract the fix**: Identify the correct command/syntax that eventually
-   worked.
-3. **Save to memory**: If the error is likely to recur (tool-specific syntax,
-   platform quirk, non-obvious flag), save a memory of type `feedback` with the
-   correct command and why the naive attempt fails.
-4. **Skip if trivial**: Typos, one-off path mistakes, or context-dependent
-   failures (file didn't exist yet) don't need saving.
