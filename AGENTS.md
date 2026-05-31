@@ -2,7 +2,7 @@
 
 ## Language
 
-- **All generated content must be in English** — PR descriptions, commit
+- **All generated content must be in English** - PR descriptions, commit
   messages, code comments, Slack drafts, reports, documentation. No exceptions
   regardless of conversation language.
 
@@ -11,19 +11,19 @@
 All generated text (messages, docs, Slack drafts, reports, PR descriptions):
 
 - **Short sentences. No filler.** Every word earns its place.
-- **No AI verbosity** — no "I'd be happy to", no "Here's a comprehensive
+- **No AI verbosity** - no "I'd be happy to", no "Here's a comprehensive
   overview", no transitional fluff.
-- **Structure over prose** — bullets > paragraphs. Tables > lists when
+- **Structure over prose** - bullets > paragraphs. Tables > lists when
   comparing.
 - **One idea per sentence.** If a sentence has "and" + "also" + a subordinate
   clause, split it.
-- **No hedging without reason** — "I recommend X" not "You might want to
+- **No hedging without reason** - "I recommend X" not "You might want to
   consider perhaps trying X".
-- **Front-load the point** — lead with the conclusion/action, context follows
+- **Front-load the point** - lead with the conclusion/action, context follows
   only if needed.
 - **Match the medium**: Slack = 1-3 lines max per thought. Docs = surgical
   sections. Email = action first, context below.
-- **No em dashes (—)** — use regular dashes (-) or rewrite the sentence instead.
+- **No em dashes** - use regular dashes (-) or rewrite the sentence instead.
 
 ## Documentation
 
