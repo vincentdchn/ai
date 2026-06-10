@@ -1,4 +1,10 @@
-# Testing Contract
+---
+description: Testing patterns - mock naming, integration guards, port interface compliance
+globs:
+  - "**/test*/**"
+  - "**/*test*"
+  - "**/*spec*"
+---
 
 Testing conventions are in `project.yaml` -> `testing`.
 

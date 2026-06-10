@@ -1,4 +1,6 @@
-# Layer Boundaries
+---
+description: Enforce strict inward-only dependency direction between architecture layers
+---
 
 Architecture pattern is defined in `project.yaml` -> `architecture.pattern`.
 

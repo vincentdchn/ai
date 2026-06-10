@@ -1,4 +1,6 @@
-# Error Handling
+---
+description: Follow project.yaml error style - result types, error hierarchy, and cause chaining
+---
 
 Error style is defined in `project.yaml` -> `conventions.error_handling`.
 

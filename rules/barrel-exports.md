@@ -1,4 +1,10 @@
-# Barrel Exports
+---
+description: Barrel file is the public API boundary - only export domain types, ports, schemas, and errors
+globs:
+  - "**/mod.ts"
+  - "**/index.ts"
+  - "**/mod.rs"
+---
 
 Barrel file is defined in `project.yaml` -> `architecture.barrel_file`.
 Exclusions are in `conventions.barrel_exports.exclude`.

@@ -1,4 +1,6 @@
-# Observability
+---
+description: Structured logging with named constants, no console.log in production
+---
 
 Logging conventions are in `project.yaml` -> `conventions.observability`.
 

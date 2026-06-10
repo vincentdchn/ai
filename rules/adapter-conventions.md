@@ -1,4 +1,9 @@
-# Adapter Conventions
+---
+description: Adapter structure requirements - config injection, destroy/healthCheck methods, composition root wiring
+globs:
+  - "**/adapters/**"
+  - "**/infrastructure/**"
+---
 
 Architecture paths are in `project.yaml` -> `architecture`.
 

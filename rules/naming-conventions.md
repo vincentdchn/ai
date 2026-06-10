@@ -1,4 +1,6 @@
-# Naming Conventions
+---
+description: Follow project.yaml naming patterns for files, classes, interfaces, errors, schemas, and adapters
+---
 
 All naming rules are in `project.yaml` -> `conventions.naming`.
 

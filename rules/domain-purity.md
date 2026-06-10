@@ -1,4 +1,10 @@
-# Domain Purity
+---
+description: Keep domain layer pure - no infra imports, no persistence fields, no vendor types in ports
+globs:
+  - "**/domain/**"
+  - "**/entities/**"
+  - "**/ports/**"
+---
 
 Purity constraints are in `project.yaml` -> `conventions.domain_purity`.
 

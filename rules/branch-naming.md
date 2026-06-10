@@ -1,4 +1,7 @@
-# Branch Naming
+---
+description: Apply project.yaml branch format template when creating branches from tickets
+alwaysApply: true
+---
 
 Branch format is in `project.yaml` -> `git.branch_format`.
 

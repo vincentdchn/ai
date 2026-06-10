@@ -1,4 +1,7 @@
-# Learn From Errors
+---
+description: Persist correct command syntax when a command fails multiple times before finding the fix
+alwaysApply: true
+---
 
 When a command fails multiple times before finding the correct syntax, persist the fix for future sessions.
 
