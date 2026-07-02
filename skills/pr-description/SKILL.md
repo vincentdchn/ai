@@ -45,7 +45,7 @@ Group by area (not by file). Each group gets 1-2 lines:
 
 ## Rules
 
-- Short sentences. No filler. Every word earns its place.
+- Follow `rule://writing-style` for tone/format.
 - Lead with what matters to the reviewer, not implementation details.
 - Group by logical area, not by file path.
 - Include the test plan - reviewers need to know what was verified.

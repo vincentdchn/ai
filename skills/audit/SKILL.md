@@ -61,6 +61,7 @@ Craft a self-contained audit brief specific to this change. The brief adapts to 
 - Changed files with what each change accomplishes
 - Project conventions relevant to these specific files (from `project.yaml`)
 - Concrete questions the reviewer should answer
+- The full contents of `rule://writing-style` (verbatim) with instruction: report findings using this style
 
 ### 4. Execute Review
 

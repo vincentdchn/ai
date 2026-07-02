@@ -90,7 +90,7 @@ You are implementing the following plan precisely.
 - Production-ready code. No TODOs, no placeholders.
 - Follow existing patterns from reference implementations.
 - Layer order: ports → domain → adapters → app service → tests → wiring.
-- Report: files modified, functions added/changed.
+- Report (follow `rule://writing-style`): files modified, functions added/changed.
 ```
 
 ### Phase 3: Quality Gates
