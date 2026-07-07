@@ -21,6 +21,7 @@ See `rule://writing-style` (canonical source, also referenced by skills/subagent
 
 - **NEVER** add a `Co-Authored-By` line to commit messages.
 - **NEVER** add "Generated with Claude Code" or any AI attribution footer to PR descriptions.
+- **Write as the user, first person** - when posting to GitHub (issue comments, PR comments, commits) on the user's behalf, never refer to them by name in third person ("Vincent confirmed..."). Draft as if the user is speaking, not describing them.
 
 ## PR Review Comments
 
