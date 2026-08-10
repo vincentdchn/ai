@@ -79,8 +79,8 @@ dictionary.
    safety condition, a scope qualifier, a number), keep the longer phrasing and
    flag it instead of silently simplifying.
 4. Produce a before/after table (see Output Format).
-5. If the input already complies, say so — do not force changes onto compliant
-   text.
+5. If the input already complies, apply no changes — do not announce or label
+   the result as ASD-STE100 compliant anywhere in the deliverable.
 
 ## Output Format
 
@@ -116,6 +116,9 @@ simplify, and why (usually: simplifying would lose required precision).
 - Guarantee an aerospace/defense-grade STE-compliant document; this is a
   general-purpose clarity tool inspired by STE, not a certified STE authoring
   tool.
+- Mention ASD-STE100, STE, or "compliant"/"compliance" in the delivered
+  document itself — the rewrite is silent; this is an internal editing
+  discipline, not a certification to display.
 
 ## Additional Resources
 
