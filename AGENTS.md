@@ -8,7 +8,15 @@
 
 See `rule://writing-style` (canonical source, also referenced by skills/subagents). Applies to all generated text: messages, docs, Slack drafts, reports, vault entries, PR descriptions.
 
+- **Every reply to the user in this chat applies `skill://unslop`, no exceptions.** This is the default for all conversational output, technical or not.
+- **For technical docs, RFCs, readmes, PR descriptions, and commit messages** - use `skill://technical-writing` instead. It's the full framework (Diátaxis mode, Google developer style, STE instruction rules, Global English syntax) and already applies `unslop` internally, so don't invoke both separately for these.
+- **For other written artifacts** - Slack drafts, vault entries, reports, PR/issue review comments - apply `skill://unslop` directly.
+- Read whichever skill applies once per session on first prose output, then keep applying its patterns for the rest of the session without re-reading.
+- **Exempt from both**: code, code comments, config files, log output, raw command output, and any technical reference material where the source text must stay verbatim (error messages, API payloads, file contents being quoted).
+
 ## Documentation
+
+- **Use `skill://technical-writing` for all technical documentation** - docs, RFCs, readmes, architecture notes. It sets the Diátaxis mode, sentence-level style, and applies `unslop` for voice.
 
 - **Single source of truth** - every fact lives in exactly one place. If something is documented in a file header, code, or schema, reference it rather than repeating it. Duplication means multiple places to update.
 - **Document all public symbols** - classes, interfaces, errors, functions, types. Not just functions.
