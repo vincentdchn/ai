@@ -46,6 +46,7 @@ The defaults are based on `HOME`, not an active host profile. An Orca profile th
 - [PR description](skills/pr-description/SKILL.md) drafts from the actual diff and project template without publishing.
 - [Technical documentation](skills/technical-documentation/SKILL.md) reviews supplied text for ambiguity on request.
 - [Vault notes](skills/vault-notes/SKILL.md) updates a supplied vault only within an explicit note-update request or active vault workflow.
+- [Setup skills](skills/setup-skills/SKILL.md) documents requested tracker, triage, or domain guidance using existing project sources. It is optional and creates no mandatory configuration layout.
 
 Planning, domain-language, and tracker-setup skills are optional procedures, not prerequisites for ordinary work. Do not run a fixed agent pipeline or impose a library's architecture on every project.
 
