@@ -2,87 +2,83 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-FORCE=false
-EXAMPLE=""
-CONFIG_DIR=".ai"
+CLAUDE_DIR="$HOME/.claude"
+OMP_DIR="$HOME/.omp/agent"
 
 usage() {
-  echo "Usage: $0 [--force] [--config-dir DIR] [--example cinos|node-react] /path/to/project"
-  echo ""
-  echo "Symlinks skills/ and agents/ into the target project's config directory."
-  echo ""
-  echo "Options:"
-  echo "  --force           Overwrite existing symlinks"
-  echo "  --config-dir DIR  Config directory name (default: .ai)"
-  echo "  --example NAME    Copy an example project.yaml as starter config"
-  echo "                    (cinos, node-react)"
-  exit 1
+  printf 'Usage: %s [--claude-dir DIR] [--omp-dir DIR]\n' "$0"
+  printf 'Link personal instructions, rules, skills, and agents without replacing existing files.\n'
 }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --force) FORCE=true; shift ;;
-    --config-dir) CONFIG_DIR="$2"; shift 2 ;;
-    --example) EXAMPLE="$2"; shift 2 ;;
-    --help|-h) usage ;;
-    -*) echo "Unknown option: $1"; usage ;;
-    *) TARGET="$1"; shift ;;
+    --claude-dir|--omp-dir)
+      if [[ $# -lt 2 || -z "$2" || "$2" == --* ]]; then
+        printf 'ERROR: %s requires a directory.\n' "$1" >&2
+        exit 2
+      fi
+      if [[ "$1" == --claude-dir ]]; then
+        CLAUDE_DIR="$2"
+      else
+        OMP_DIR="$2"
+      fi
+      shift 2
+      ;;
+    --help|-h) usage; exit 0 ;;
+    *) printf 'ERROR: Unknown argument: %s\n' "$1" >&2; usage >&2; exit 2 ;;
   esac
 done
 
-if [[ -z "${TARGET:-}" ]]; then
-  usage
+# Absolute paths keep the installed symlinks independent of the working directory.
+if [[ "$CLAUDE_DIR" != /* || "$OMP_DIR" != /* ]]; then
+  printf 'ERROR: Installation directories must be absolute paths.\n' >&2
+  exit 2
 fi
 
-TARGET="$(cd "$TARGET" && pwd)"
-DEST_DIR="$TARGET/$CONFIG_DIR"
+SOURCES=("$SCRIPT_DIR/AGENTS.md" "$SCRIPT_DIR/rules" "$SCRIPT_DIR/skills" "$SCRIPT_DIR/agents")
+DESTINATIONS=("$CLAUDE_DIR/CLAUDE.md" "$CLAUDE_DIR/rules" "$CLAUDE_DIR/skills" "$CLAUDE_DIR/agents")
+for source in "$SCRIPT_DIR"/rules/*.md; do
+  SOURCES+=("$source")
+  DESTINATIONS+=("$OMP_DIR/rules/$(basename "$source")")
+done
 
-if [[ ! -d "$DEST_DIR" ]]; then
-  echo "Creating $DEST_DIR"
-  mkdir -p "$DEST_DIR"
-fi
-
-link_dir() {
-  local name="$1"
-  local src="$SCRIPT_DIR/$name"
-  local dest="$DEST_DIR/$name"
-
-  if [[ -L "$dest" ]]; then
-    if [[ "$FORCE" == "true" ]]; then
-      rm "$dest"
-      echo "Replaced symlink: $dest -> $src"
-    else
-      echo "Exists (skip): $dest (use --force to overwrite)"
-      return
-    fi
-  elif [[ -e "$dest" ]]; then
-    echo "ERROR: $dest exists and is not a symlink. Remove it manually."
-    return 1
-  fi
-
-  ln -s "$src" "$dest"
-  echo "Linked: $dest -> $src"
-}
-
-link_dir "skills"
-link_dir "agents"
-
-if [[ -n "$EXAMPLE" ]]; then
-  EXAMPLE_FILE="$SCRIPT_DIR/examples/project.${EXAMPLE}.yaml"
-  DEST_CONFIG="$DEST_DIR/project.yaml"
-
-  if [[ ! -f "$EXAMPLE_FILE" ]]; then
-    echo "ERROR: Example not found: $EXAMPLE_FILE"
-    echo "Available: $(ls "$SCRIPT_DIR/examples/" | sed 's/project\.//;s/\.yaml//' | tr '\n' ' ')"
+# Detect conflicts before creating any links or removing retired links.
+for index in "${!SOURCES[@]}"; do
+  source="${SOURCES[$index]}"
+  destination="${DESTINATIONS[$index]}"
+  if [[ ! -e "$source" ]]; then
+    printf 'ERROR: Missing source: %s\n' "$source" >&2
     exit 1
   fi
-
-  if [[ -f "$DEST_CONFIG" && "$FORCE" != "true" ]]; then
-    echo "Exists (skip): $DEST_CONFIG (use --force to overwrite)"
-  else
-    cp "$EXAMPLE_FILE" "$DEST_CONFIG"
-    echo "Copied: $DEST_CONFIG (from $EXAMPLE example)"
+  if [[ -e "$destination" || -L "$destination" ]]; then
+    if [[ ! "$destination" -ef "$source" ]]; then
+      printf 'ERROR: Preserve existing path: %s. Resolve it before installing.\n' "$destination" >&2
+      exit 1
+    fi
   fi
-fi
+done
 
-echo "Done."
+mkdir -p "$CLAUDE_DIR" "$OMP_DIR/rules"
+for index in "${!SOURCES[@]}"; do
+  source="${SOURCES[$index]}"
+  destination="${DESTINATIONS[$index]}"
+  if [[ "$destination" -ef "$source" ]]; then
+    printf 'Already linked: %s\n' "$destination"
+  else
+    ln -s "$source" "$destination"
+    printf 'Linked: %s -> %s\n' "$destination" "$source"
+  fi
+done
+
+# Only remove broken rule links owned by this repository, never custom rules.
+for destination in "$OMP_DIR"/rules/*.md; do
+  if [[ -L "$destination" && ! -e "$destination" ]]; then
+    source="$(readlink "$destination")"
+    case "$source" in
+      "$SCRIPT_DIR"/rules/*.md)
+        rm "$destination"
+        printf 'Removed retired rule link: %s\n' "$destination"
+        ;;
+    esac
+  fi
+done

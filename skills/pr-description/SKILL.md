@@ -1,53 +1,35 @@
 ---
 name: pr-description
-description: Generates a PR description from the current branch diff and project conventions. Output is a ready-to-use markdown body.
+description: Draft a PR body from the actual branch diff, target base, and project template without publishing it.
 ---
 
-# PR Description
+# PR description
 
-Generates a pull request body from the current branch changes.
+Draft only. Do not edit files, run checks, commit, push, or create a PR.
 
-## Step 1: Gather context
+## Resolve the branch and template
 
-```bash
-git log --oneline main..HEAD
-git diff --stat main...HEAD
-git diff main...HEAD
-```
+1. Identify the current or requested branch and any existing PR.
+2. Use the caller's requested base or the actual PR target. Otherwise resolve the base from repository instructions and branch metadata.
+3. Find and read the applicable project PR template and contribution guidance. Respect template selection when the repository provides several.
+4. If the base or template choice remains ambiguous after inspection, ask rather than assume.
 
-Read the project's instructions file for conventions and PR expectations.
+Read the commits and merge-base diff for the resolved base and branch. Do not use a fixed default branch.
 
-## Step 2: Analyze changes
+For a prospective branch PR, exclude uncommitted work from claims about the branch. If the user explicitly requests a draft for uncommitted changes, identify it as a prospective draft. If the requested branch comparison is empty, report that fact instead of inventing a PR body.
 
-Group changes by area:
+## Write the body
 
-- Which layers were touched (domain, ports, adapters, tests)
-- What's new vs what's modified
-- What the commit messages say about intent
+- Use the project's template headings and required fields. Do not replace them with a personal format.
+- Explain the change and its reason from the diff, task, and commits. Group related behavior rather than listing every file.
+- Fill verification fields with observed results only. Distinguish passed, failed, and unrun checks.
+- Include manual verification evidence only when the template requests it. Never check an acceptance box without evidence.
+- Preserve required issue links, rollout notes, and risk disclosures when supported by the available context.
 
-## Step 3: Generate PR body
+If the project has no template, use a short summary and relevant observed check results. Do not add an automatic manual test plan or evidence checklist.
 
-Output a fenced markdown block with this structure:
+Read `rule://writing-style`, or [the local writing policy](../../rules/writing-style.md) when that URI is unavailable. Apply [technical-writing](../technical-writing/SKILL.md) to the PR prose.
 
-```markdown
-## Summary
+Output only the PR body as plain Markdown. Do not wrap it in a code fence. If missing information prevents an honest draft, report the specific blocker instead.
 
-1-3 bullet points. What changed and why.
-
-## Changes
-
-Group by area (not by file). Each group gets 1-2 lines:
-
-- **Domain**: added X entity, updated Y validation
-- **Adapters**: new SQS consumer for Z
-- **Tests**: unit + integration coverage for the above
-```
-
-## Rules
-
-- Follow `rule://writing-style` for tone/format.
-- Lead with what matters to the reviewer, not implementation details.
-- Group by logical area, not by file path.
-- Include the test plan - reviewers need to know what was verified.
-- Output ONLY the PR body markdown. No preamble, no explanation around it.
-- If there are no commits ahead of main, say so and stop.
+Drafting grants no commit or publication authority. Follow the global [authorization policy](../../AGENTS.md). Failed or unrun required checks still block commit and publication.

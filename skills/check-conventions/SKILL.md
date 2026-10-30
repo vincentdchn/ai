@@ -1,206 +1,44 @@
 ---
 name: check-conventions
-description: Validates code against all project architecture conventions. Reads project.yaml to determine applicable checks and runs them. Replaces individual check-* skills.
+description: Review scoped changes against documented repository conventions and established local patterns.
 ---
 
-# Check Conventions
+# Check conventions
 
-Read-only analysis. Reports all convention violations with file path and line number.
+Read-only analysis. Do not modify code, run quality gates, commit, or publish.
 
-## Arguments
+## Identify the scope and standards
 
-- `--only=check1,check2` - run only specified checks (default: all applicable)
-- `--files=path1,path2` - check only these files (default: all modified files vs main)
+1. Use the caller's file list, diff, or review range. With no scope, review staged and unstaged changes, plus task-related untracked files.
+2. For a branch comparison, use the caller's base, actual PR target, or repository-native base. Never assume a default branch or substitute the previous commit.
+3. Read applicable repository instructions, contribution guidance, tool configuration, and nearby implementations.
+4. Select only conventions relevant to the changed code. If the caller requests `--only=<conventions>`, limit the review accordingly.
 
-## Step 1: Load project config
+Accept `--files=<paths>` to narrow the scope. Read context and relevant callers when needed to understand a changed line.
 
-Read `project.yaml` (in the project's config directory, default `.ai/`) to determine which checks apply.
+Prefer an explicit local rule over an inferred pattern. If there is no written rule, cite representative implementations and label the convention as inferred. When local examples disagree, report the uncertainty rather than invent a standard.
 
-## Step 2: Identify scope
+## Assess each candidate
 
-```bash
-git diff --name-only main...HEAD 2>/dev/null || git diff --name-only HEAD~1
-```
+- Check the complete expression, import, function, or test before reporting a violation.
+- Explain how the changed code conflicts with a cited local convention.
+- Consider exceptions, generated code, and the surrounding implementation.
+- Treat regex matches as leads, not proof. Do not infer behavior, dependency direction, or test coverage from filenames or text matches alone.
+- Do not impose an architecture, error style, naming system, or test layout that the target project does not use.
 
-If `--files` argument provided, use that instead.
+Focus on violations introduced by the scoped changes. Mention older code only when it explains a concrete regression. Do not request stylistic changes already enforced by tooling unless observed failures are relevant to the task.
 
-## Step 3: Determine applicable checks
+## Report evidence
 
-| Check | Applies when |
-|---|---|
-| layer-boundaries | architecture.pattern is defined |
-| error-handling | conventions.error_handling is defined |
-| barrel-exports | architecture.barrel_file is defined |
-| naming-conventions | always |
-| testing-contract | always |
-| observability | conventions.observability is defined |
-| domain-purity | modified files include domain_dir or shared_domain_dir |
-| infra-encapsulation | architecture.pattern is port-adapter or hexagonal |
+State the files or range reviewed and the standards consulted. For each finding, include:
 
-Skip checks whose config section is absent. Respect `--only` filter if provided.
+- The changed `file:line`.
+- The convention source and relevant line or configuration key.
+- The conflict and its practical consequence.
+- A concrete correction and severity based on that consequence.
 
-## Step 4: Run checks
+Separate documented violations from inferred-pattern suggestions. Do not declare a generic rule category blocking.
 
-### Layer Boundaries
+If no supported violation is found, say so. If evidence is missing, name the limitation instead of reporting a pass. This review does not replace the project's checks or clear failed or unrun gates.
 
-Adapt grep patterns to the project runtime:
-
-**JS/TS (deno, node):**
-```bash
-grep -rn "from.*[\"'].*adapters/" {ports_dir} || true
-grep -rn "from.*adapters/\|from.*application/" {domain_dir} || true
-grep -rln "from.*application/" src/ | xargs grep -ln "from.*adapters/" | grep -v {composition_root} || true
-```
-
-**Go:**
-```bash
-grep -rn '".*adapters/' {ports_dir} || true
-grep -rn '".*adapters/\|".*application/' {domain_dir} || true
-```
-
-**Python:**
-```bash
-grep -rn "from adapters\|import adapters" {ports_dir} || true
-grep -rn "from adapters\|from application\|import adapters\|import application" {domain_dir} || true
-```
-
-### Error Handling
-
-For style: result:
-```bash
-grep -rn "throw new\|throw " {ports_dir} {adapters_dir} | grep -v "_errors" || true
-```
-
-For style: throw:
-```bash
-grep -rn 'throw "' src/ || true
-grep -rn "throw new Error(" src/ || true
-```
-
-### Barrel Exports
-
-```bash
-find . -name "{barrel_file}" -not -path "*/node_modules/*" -not -path "*/.git/*"
-```
-
-For each barrel file, check against each entry in barrel_exports.exclude:
-```bash
-grep -n "from.*adapters/" {barrel_file} || true
-grep -n "from.*mock\|from.*_mocks" {barrel_file} || true
-grep -n "from.*test_helper\|from.*testing" {barrel_file} || true
-grep -n "from.*internal\|from.*private" {barrel_file} || true
-```
-
-### Naming Conventions
-
-```bash
-find src/ -name "*.ts" -o -name "*.js" -o -name "*.go" -o -name "*.py" -o -name "*.rs" | \
-  grep -v node_modules | grep -v .git
-```
-
-Apply pattern from naming.files config. Check class/type names:
-```bash
-grep -rn "^export class\|^class\|^export interface\|^export type" src/
-```
-
-### Testing Contract
-
-```bash
-# Find implementation files without tests
-find {adapters_dir} {domain_dir} -name "*.ts" -o -name "*.go" -o -name "*.py" | \
-  grep -v "_test\|.test\|.spec"
-
-# Check mocks implement interfaces
-grep -rn "^export class" {mock_dir} | grep -v "implements" || true
-
-# Find unguarded integration tests
-find {test_dir} -name "*integration*" | xargs grep -L "{integration_guard}" || true
-```
-
-### Observability
-
-```bash
-# Unstructured logging (if style: structured)
-grep -rn "logger\.\(info\|warn\|error\|debug\)" src/ | grep -v "{" || true
-
-# Console.log in production code
-grep -rn "console\.log" src/ | grep -v "test\|spec\|mock" || true
-```
-
-### Domain Purity
-
-For each pattern in no_infra_imports, adapt to runtime:
-
-**JS/TS:**
-```bash
-grep -rn "from.*{pattern}\|import.*{pattern}" {domain_dir} {shared_domain_dir} || true
-```
-
-**Go:**
-```bash
-grep -rn '"{pattern}' {domain_dir} {shared_domain_dir} || true
-```
-
-**Python:**
-```bash
-grep -rn "from {pattern}\|import {pattern}" {domain_dir} {shared_domain_dir} || true
-```
-
-If no_persistence_fields: true:
-```bash
-grep -rn "partitionKey\|sortKey\|pk\|sk\|_id\|s3Key\|s3Path\|sqsHandle\|receiptHandle\|sequenceNumber" {domain_dir} {shared_domain_dir} || true
-```
-
-### Infra Encapsulation
-
-Adapt to runtime:
-
-**JS/TS:**
-```bash
-grep -rn "from.*@aws-sdk\|from.*@azure\|from.*@google-cloud\|from.*pg\|from.*redis" {ports_dir} || true
-grep -rn "^export class" {adapters_dir} | grep -v "implements" || true
-grep -n "from.*adapters/" {barrel_file} || true
-```
-
-**Go:**
-```bash
-grep -rn '"github.com/aws\|"cloud.google.com\|"github.com/Azure' {ports_dir} || true
-```
-
-**Python:**
-```bash
-grep -rn "from boto3\|import boto3\|from google.cloud\|import redis\|from sqlalchemy" {ports_dir} || true
-```
-
-## Output
-
-```markdown
-## Convention Check Report
-
-### Summary
-- Checks run: N
-- Checks passed: X/N
-- Total violations: M
-
-### Passed
-- [x] Layer boundaries
-- [x] Naming conventions
-...
-
-### Violations (M found)
-1. **[layer-boundaries]** `src/ports/consumer.ts:12` - imports from adapters/
-2. **[naming]** `src/adapters/MyAdapter.ts` - file should be snake_case
-3. **[domain-purity]** `src/domain/order.ts:5` - imports @aws-sdk/client-sqs
-
-### Severity
-- BLOCKING: layer-boundaries, error-handling, domain-purity, infra-encapsulation
-- WARNING: naming, barrel-exports, testing-contract, observability
-```
-
-## Rules
-
-- READ-ONLY. Never modify files.
-- Report violations with exact file path and line number.
-- Skip inapplicable checks (missing config section = skip).
-- Only report concrete violations, not subjective opinions.
-- Blocking violations should fail quality gates. Warnings are advisory.
+Read `rule://writing-style` before reporting, or use [the local writing policy](../../rules/writing-style.md) when that URI is unavailable. Follow the global [authorization policy](../../AGENTS.md).

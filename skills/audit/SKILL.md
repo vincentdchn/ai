@@ -1,88 +1,55 @@
 ---
 name: audit
-description: Generates a context-specific audit brief and executes review via code-reviewer agent. Usable standalone or as a building block within other skills.
+description: Review a scoped change against its intent and the target repository's conventions, with evidence-backed findings.
 skills: check-conventions
 agents: code-reviewer
 ---
 
 # Audit
 
-Analyzes changes, generates a brief adapted to the specific work, and spawns `code-reviewer` to execute the review.
+Read-only review. Do not edit files, run quality gates, commit, or publish.
 
-## Trigger
+## Pin the scope
 
-`/audit` or invoked programmatically by other skills (e.g. `implement`).
+- With no arguments, review both staged and unstaged changes. Include task-related untracked files and identify them separately.
+- For a branch or PR, use the caller's base or the actual PR target. Otherwise resolve the base from repository instructions and branch metadata.
+- For explicit files, commits, or ranges, preserve that scope. State the comparison semantics before reviewing.
+- When the base cannot be resolved from available evidence, ask rather than assume a branch name.
 
-## Inputs
+Read both index and worktree diffs. If a file has staged and unstaged edits, review both versions rather than only its final contents. Read nearby code and relevant callers as needed, without expanding into an unrelated repository audit.
 
-Accepts one of:
-- No argument → reviews unstaged + staged changes
-- Branch name → reviews diff against main
-- File list → reviews those files
-- **Directed context** (when called by another skill): intent, plan, prior findings, focus areas
+## Build the review brief
 
-## Workflow
+Gather intent from the caller, acceptance criteria, linked issue, PR description, or commits. State missing context rather than inventing requirements.
 
-### 1. Determine Scope
+Include:
 
-```bash
-git diff --stat
-git diff --cached --stat
-```
+- The exact scope, base or range, changed files, and relevant versions.
+- The task, approved plan, and acceptance criteria that are available.
+- Applicable local rules, with source paths and relevant passages.
+- Concrete risks and questions raised by this change.
+- Prior findings and actual check results, including failures and unrun checks.
 
-Or use the provided branch/file list. Read changed files.
+Use [check-conventions](../check-conventions/SKILL.md) only for conventions relevant to these files. Repository instructions and representative local implementations determine the standards.
 
-### 2. Understand Intent
+## Review the change
 
-- From commit messages, PR description, or caller-provided context
-- If ambiguous and interactive: ask the user in one question
-- Identify which layers/modules are touched and what the change accomplishes
+Review inline or send the brief to the read-only `code-reviewer` agent. Delegation is optional. If delegated, pass the complete scope and instruct the reviewer to read `rule://writing-style`, or [the local writing policy](../../rules/writing-style.md) when unavailable.
 
-### 3. Generate Brief
+Check behavior against the task, affected callers, regression risks, and local conventions. For follow-up audits, verify prior findings and inspect the fixes for regressions.
 
-Craft a self-contained audit brief specific to this change. The brief adapts to what was done:
+Report only concrete issues introduced or exposed by the scoped change. Cite the changed `file:line`, the consequence, and the supporting requirement or convention. Search results locate evidence. Read the code before treating a match as a violation.
 
-**For new feature code:**
-- Contract completeness (are all edge cases handled?)
-- Integration points (what could break downstream?)
-- Convention adherence for the specific layers touched
+## Return findings
 
-**For bug fixes:**
-- Root cause addressed vs symptom suppressed?
-- Regression test present?
-- Related code paths that share the same pattern
+Read `rule://writing-style` before reporting, or use [the local writing policy](../../rules/writing-style.md) when that URI is unavailable.
 
-**For refactors:**
-- Behavioral equivalence (does output change?)
-- Missed call sites
-- Dead code left behind
+State the scope and sources reviewed. List findings by severity with a concrete fix:
 
-**Always include in the brief:**
-- Changed files with what each change accomplishes
-- Project conventions relevant to these specific files (from `project.yaml`)
-- Concrete questions the reviewer should answer
-- The full contents of `rule://writing-style` (verbatim) with instruction: report findings using this style
+- `Critical`: security, data loss, or broken behavior with a demonstrated path.
+- `Important`: a material correctness, requirement, or local-convention issue.
+- `Nit`: an optional improvement with a specific benefit.
 
-### 4. Execute Review
+Use `FAIL` for unresolved critical or important findings. Use `PASS` when none remain in the reviewed scope. Use `INCOMPLETE` when missing access or evidence prevents the requested review. Say which scope remains unreviewed.
 
-Spawn `code-reviewer` agent with the generated brief. Return its output verbatim.
-
-## Output
-
-The `code-reviewer` verdict: structured findings (Critical/Important/Nit) + PASS/FAIL.
-
-## Verification Mode
-
-When called with prior findings to verify (e.g. implement's final audit):
-
-Brief focuses on:
-- Were previous blockers resolved?
-- Did fixes introduce new issues?
-- Are original requirements met?
-
-## Rules
-
-- Brief is always self-contained. Reviewer needs zero external context.
-- Brief is always specific. Never a generic checklist.
-- Adapt brief depth to change complexity: rename = light, new feature = thorough.
-- Never modify code. Read-only.
+A review verdict is not a quality-gate result or permission to commit. Preserve failures and unrun checks in the report. Follow the [verification policy](../../rules/verification.md) and [authorization policy](../../AGENTS.md).

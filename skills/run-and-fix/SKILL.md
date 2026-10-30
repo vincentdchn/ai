@@ -1,103 +1,50 @@
 ---
 name: run-and-fix
-description: Runs project quality gates in sequence, auto-fixes failures, retries up to N times per step before escalating. Adapts to any runtime via project.yaml.
+description: Discover and run applicable project checks, fix scoped failures, and report observed results without weakening gates.
 ---
 
-# Run and Fix
+# Run and fix
 
-Executes quality gates sequentially, fixing failures along the way.
+Use the global [verification policy](../../rules/verification.md) and the target project's local instructions. This workflow authorizes checks and scoped fixes, not commits or publication.
 
-## Step 1: Load project config
+## Discover the checks
 
-Read `project.yaml` (in the project's config directory, default `.ai/`) to get:
-- `quality_gates.commands` (format, lint, typecheck, test, audit)
-- `quality_gates.retry_max` (default: 3)
-- `quality_gates.coverage_threshold`
+1. Identify the changed files and the requested verification scope.
+2. Read the project's documented commands, package scripts, runtime configuration, and CI workflows.
+3. Resolve the package manager and working directory from repository evidence, including lockfiles and workspace configuration.
+4. Record each applicable command, its source, prerequisites, and whether the project requires it.
 
-If no `project.yaml` exists, detect from project root files:
-- `deno.json` / `deno.jsonc` -> deno fmt / deno lint / deno task check / deno task test
-- `package.json` -> npm run format / npm run lint / tsc --noEmit / npm test
-- `go.mod` -> gofmt / golangci-lint run / (skip typecheck) / go test ./...
-- `Cargo.toml` -> cargo fmt / cargo clippy / (skip typecheck) / cargo test
+Do not invent commands from a language or manifest name. A package manifest does not establish an `npm` workflow or a standalone compiler command. If sources conflict, resolve which workflow applies before running it.
 
-## Step 2: Execute gates in order
+Use the project's check order. Run only applicable gates. Include builds, security checks, coverage, or integration checks when the project requires them for this scope. Use only documented coverage thresholds.
 
-Run each step. On failure, analyze the error, apply a minimal fix, re-run.
-Move to the next step only when the current one passes.
+If a required command or prerequisite cannot be resolved, mark the gate `NOT_RUN` and explain the blocker. Missing credentials, unavailable services, or an unknown command do not make a required gate inapplicable.
 
-### Gate sequence
+## Run and fix
 
-1. **Format** - Run format command. Auto-fixes formatting. Rarely fails.
-2. **Lint** - Run lint command. On failure: read error, apply fix, re-run.
-3. **Type check** - Run typecheck command (skip if null). On failure: fix types, re-run.
-4. **Tests** - Run test command. On failure: fix code or test, re-run. Do NOT weaken assertions.
-5. **Audit** - Run audit command (skip if null). On failure: report to user, do NOT auto-fix.
+1. Run a gate with the documented command in the correct working directory.
+2. On failure, inspect the output and relevant code. Apply a minimal fix within the task's scope.
+3. Rerun the failed gate. Use the project's retry limit, or stop after three unsuccessful fix attempts.
+4. After a fix, rerun earlier checks whose results the edit invalidated.
+5. Continue only when the current gate passes.
 
-## Iteration Protocol
+If a failure remains, stop automatic fixes and subsequent gates. Report the failure, attempted fixes, and remaining checks as `NOT_RUN`. Read-only diagnosis may continue.
 
-```
-for each step:
-  attempt = 0
-  while step fails AND attempt < retry_max:
-    analyze error output
-    apply minimal targeted fix
-    re-run step
-    attempt++
-  if step still fails:
-    STOP and report to user with:
-      - which step failed
-      - error output
-      - what was tried
-      - suggested manual fix
-```
+Never weaken assertions, lower thresholds, disable checks, or hide failures. Change an incorrect test only when the specification supports the correction. Do not apply dependency or security remediation outside the approved scope.
 
-## Step 3: Coverage verification (optional)
+Respect the worktree. Do not overwrite unrelated changes or run destructive setup commands without approval. If a formatter would rewrite unrelated work, use a supported scoped command or report the limitation.
 
-If `quality_gates.commands.coverage` is defined:
+## Report the actual state
 
-1. Run coverage command.
-2. Verify `coverage_threshold`% minimum line coverage on modified files.
-3. If below threshold: identify uncovered branches, report to user. Do NOT generate weak tests.
-4. BLOCK until threshold is met.
+For each gate, report the exact command, working directory, status, attempts, and useful output:
 
-## Step 4: Git hygiene (optional)
+- `PASS`: the command succeeded for the current changes.
+- `FAIL`: the command failed or a required threshold was not met.
+- `NOT_RUN`: the gate was not executed, or edits invalidated its result and it has not been rerun.
+- `N/A`: repository evidence establishes that the gate does not apply. Cite that evidence.
 
-If running as a final pre-commit check:
+Keep check results separate from review findings. Report all gates passed only when every required applicable gate passed for the current changes.
 
-```bash
-git diff --stat main...HEAD
-```
+Return results without committing or publishing. A failed or unrun required gate blocks both, regardless of an audit verdict. Follow the global [authorization policy](../../AGENTS.md).
 
-Check for:
-- Unintended file changes (lock files, unrelated files)
-- Files that should be in .gitignore (coverage/, dist/, node_modules/)
-- Large binary files or generated content
-
-Report findings but do not auto-fix.
-
-## Output Format
-
-```
-## Quality Gate Results
-
-| Step       | Status | Attempts | Notes                    |
-|------------|--------|----------|--------------------------|
-| Format     | PASS   | 1        | Auto-fixed 3 files       |
-| Lint       | PASS   | 2        | Fixed unused import      |
-| Type check | PASS   | 1        | -                        |
-| Tests      | PASS   | 1        | 42 tests, all passing    |
-| Audit      | PASS   | 1        | No vulnerabilities found |
-| Coverage   | PASS   | -        | 85% (threshold: 80%)     |
-| Git hygiene| PASS   | -        | No unintended changes    |
-
-All gates passed.
-```
-
-## Rules
-
-- ALWAYS run format first (it fixes issues other steps would flag).
-- NEVER weaken a test assertion to make it pass.
-- NEVER skip a step (except null commands).
-- NEVER auto-fix security audit issues without user approval.
-- After fixing lint/typecheck errors, re-run format to ensure consistency.
-- Follow project conventions from CLAUDE.md for any code changes.
+Read `rule://writing-style` before reporting, or use [the local writing policy](../../rules/writing-style.md) when that URI is unavailable.
