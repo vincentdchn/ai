@@ -4,6 +4,8 @@ description: Documentation ownership and current-state conventions for docs and 
 
 # Documentation conventions
 
+- Give each document one role. A current reference describes the real state and cites no ticket or work status. A vision document describes a declared target and is labelled as vision. An implementation tracker holds status, blockers, and priorities, and lives in the tracker or a plan file. A document mixing the three is split.
+- A README never references a plan. A plan lives in the tracker or in `docs/plans/`, never in the README or a reference document.
 - Describe the current behavior and constraints. Keep migration history in ADRs, changelogs, or explicitly historical guides; do not turn reference docs or code comments into a change log.
 - Give each fact one canonical owner. Link to that owner instead of maintaining another definition. Short routing summaries and generated views are acceptable when their source is clear.
 - Keep commands with the project's scripts or command reference, architecture decisions with its decision records, and product terminology with its domain documentation. A plan is not evidence that a behavior exists.

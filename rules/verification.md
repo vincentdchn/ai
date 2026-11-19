@@ -6,6 +6,10 @@ description: Evidence required before presenting an implementation step for revi
 
 Use the target repository's documented commands and tools. Read the relevant scripts, CI configuration, and installed library documentation before choosing a command. If a documented command fails, report its output; do not silently substitute a weaker check.
 
+E2E is not the default. The default is the unit tests of the packages touched. Run E2E only on explicit request or in CI.
+
+Distinguish four verification phases. A preview covers exploratory design or style work: type-check and visual check only, no full suite. An implementation handoff covers unit tests, format, lint, and type-check. An isolated commit review runs the checks of the touched packages in a temporary worktree. CI delivery runs the full suite, E2E included. An explicit exclusion from me is a contract that stays valid until I change it. When E2E is excluded, write "excluded by agreement" or "delegated to CI", never "verified".
+
 Before presenting an agreed implementation step, cover the applicable checks:
 
 1. Run the project's formatter and linter. Read warnings as well as errors. Fix warnings introduced by the change or explain why they remain.
@@ -20,4 +24,8 @@ Before presenting an agreed implementation step, cover the applicable checks:
 
 In the handoff, give each applicable check its observed result and evidence. Mark an inapplicable check `N/A` with the reason. Mark required checks that could not run as unrun; do not describe the step as verified or ready while required checks fail or remain unrun.
 
+A handoff that asks me to run something names the working directory, the exact command, the input, the expected output, and the failure behavior. Run an authorized step yourself when you can; do not hand back a reachable command.
+
 A green command does not replace manual review. A review PASS does not override failed checks. After fixes, rerun checks whose evidence is stale. Do not weaken assertions or suppress failures to obtain a pass.
+
+Secret values never appear in tool output, visible command arguments, generated files, or chat. Transfer them through paths that keep them out of the model context. Confirm that the output contains only non-sensitive metadata.

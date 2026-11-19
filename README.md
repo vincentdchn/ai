@@ -44,6 +44,7 @@ The defaults are based on `HOME`, not an active host profile. An Orca profile th
 - [Audit](skills/audit/SKILL.md) reviews a supplied scope, including staged and unstaged work by default.
 - [Code review](skills/code-review/SKILL.md) separates standards review from specification review.
 - [PR description](skills/pr-description/SKILL.md) drafts from the actual diff and project template without publishing.
+- [Product discovery with UI references](skills/product-discovery-with-ui-references/SKILL.md) explores workflows using repository evidence, named patterns, and concrete interface examples, without implementing them.
 - [Technical documentation](skills/technical-documentation/SKILL.md) reviews supplied text for ambiguity on request.
 - [Vault notes](skills/vault-notes/SKILL.md) updates a supplied vault only within an explicit note-update request or active vault workflow.
 - [Setup skills](skills/setup-skills/SKILL.md) documents requested tracker, triage, or domain guidance using existing project sources. It is optional and creates no mandatory configuration layout.
