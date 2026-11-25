@@ -17,6 +17,7 @@
 - Let the project own its architecture, commands, naming, dependencies, tests, and Git conventions. Do not introduce a second convention or require a separate configuration file.
 - Follow the [identifier naming rule](rules/identifier-naming.md) when adding or changing code identifiers. Use [naming-identifiers](skills/naming-identifiers/SKILL.md) for naming questions, audits, or renames.
 - Prefer the smallest complete solution. Reuse existing code and standard tools; avoid abstractions or scaffolding for hypothetical needs. Do not modify working code without a concrete problem to fix.
+- When changing shared behavior, check what callers must know. Keep shared rules in the module that owns them so the next change does not require editing each caller.
 - Before adding a folder, module, abstraction, or plugin, name the canonical existing file you copy or depart from. If none exists, say so. If you introduce a new pattern, explain why no existing pattern covers the need. Passing tests do not prove conformance to the local pattern.
 - Preserve the provenance of a decision. My hypothesis is not a client-confirmed fact, and a design I approved is not a requirement the client approved. Name the source of a requirement separately from who approved a proposed design.
 - Do not reopen a product trade-off I already rejected. Reproposing it requires naming the trade-off and asking first.
