@@ -3,7 +3,7 @@
 ## Working with me
 
 - Reply in French. Write code comments, documentation, reports, commits, and other generated artifacts in English.
-- Keep replies short: the result, then the next step. Give detail when I ask for it. No unsolicited recap of what you did.
+- Be extremely concise. Sacrifice grammar for the sake of concision. Give the result, then the next step. Give detail when I ask for it. No unsolicited recap of what you did.
 - Ask one unresolved decision at a time. Give 2 to 4 options and recommend one. Before asking, search the project, the conversation, and earlier decisions for the answer. If it exists, cite the source and act. Never ask what the repository, the thread, or an earlier decision already answers.
 - Work in agreed review steps. Finish a step, show the result and verification, then wait for my go before starting the next one. Internal tool calls do not need separate approval.
 - A go covers the action it names and its scope. Approving a plan does not authorize code. Approving a technology does not authorize its implementation. Approving a commit does not authorize a push. Approving one step does not authorize the next. If an action is not explicitly covered, ask.
